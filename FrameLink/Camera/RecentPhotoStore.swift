@@ -100,13 +100,13 @@ struct RecentPhotoArchive: Sendable {
         var errorDescription: String? {
             switch self {
             case .invalidImage:
-                return "This photo preview could not be read or created. The original is available in Photos if it was saved successfully."
+                return "Couldn’t read or create the photo preview. If the photo was saved, you can still find the original in Photos."
             case .previewNotFound:
-                return "This preview is no longer available in Frame Link. Reload the gallery and try again."
+                return "This photo is no longer in Recent photos. Tap Reload photos to update the list."
             case .invalidAssetReference:
-                return "The photo's Photos reference is invalid, so its gallery entry could not be created."
+                return "Frame Link couldn’t link this photo to its original in Photos, so it wasn’t added to Recent photos."
             case .previewCleanupFailed(let detail):
-                return "The original is no longer in Photos, but its gallery preview could not be removed: \(detail) Retry Delete Photo after storage is available to finish updating the gallery."
+                return "Deleted from Photos, but the preview couldn’t be removed from Frame Link. Try Delete Photo again before closing Frame Link. \(detail)"
             }
         }
     }
@@ -186,8 +186,8 @@ final class RecentPhotoStore: ObservableObject {
                     self.errorMessage = warning
                 case .failure(let error):
                     self.errorMessage = photo == nil
-                        ? "Recent photos could not be loaded: \(error.localizedDescription)"
-                        : "Your photo was saved to Photos, but its in-app preview could not be stored: \(error.localizedDescription)"
+                        ? "Couldn’t load recent photos: \(error.localizedDescription)"
+                        : "Saved to Photos, but Frame Link couldn’t store the preview: \(error.localizedDescription)"
                 }
                 completion?()
             }
@@ -214,11 +214,11 @@ private enum PhotoLibraryDeletion {
         var errorDescription: String? {
             switch self {
             case .accessRequired:
-                return "The photo was not deleted. Allow Frame Link Photos access in Settings to delete originals. Its gallery preview has been kept."
+                return "The photo wasn’t deleted. Allow Frame Link Photos access in Settings, then try again. The preview is still in Frame Link."
             case .originalUnavailable:
-                return "The linked original is unavailable. It may be hidden, outside your allowed Photos selection, or already deleted. The preview has been kept. Unhide the original or update access in Settings and retry. Frame Link cannot safely delete from both places while the original is unavailable."
+                return "Frame Link can’t access the original in Photos. It may be hidden, outside your allowed selection, or already deleted. The preview is still here. Unhide the photo in Photos or update Frame Link’s Photos access in Settings, then try again."
             case .notDeleted(let detail):
-                return "Photos did not confirm deletion: \(detail) The gallery preview has been kept."
+                return "Photos didn’t confirm deletion. The preview is still in Frame Link. \(detail)"
             }
         }
     }
