@@ -6,8 +6,19 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		EEEEEEEEEEEEEEEEEEEEEE0A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 98F54143AB4E86B28C3AFEE0 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0E8A3AD980EC179856012B7E;
+			remoteInfo = FrameLink;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		38A007151ABE87CC01A5B6E9 /* FrameLink.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FrameLink.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEEEEEEEEEEEEEEEEEEEEE06 /* FrameLinkUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FrameLinkUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -33,10 +44,27 @@
 			path = FrameLink;
 			sourceTree = "<group>";
 		};
+		EEEEEEEEEEEEEEEEEEEEEE05 /* FrameLinkUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = FrameLinkUITests;
+			path = Tests/UI;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		7561BFB015D8F536760CB671 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EEEEEEEEEEEEEEEEEEEEEE08 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -50,6 +78,7 @@
 			isa = PBXGroup;
 			children = (
 				D191BE8BCA0B46A994B570A1 /* FrameLink */,
+				EEEEEEEEEEEEEEEEEEEEEE05 /* FrameLinkUITests */,
 				FBDC4F23F93125BBEEAE800C /* Products */,
 			);
 			sourceTree = "<group>";
@@ -58,6 +87,7 @@
 			isa = PBXGroup;
 			children = (
 				38A007151ABE87CC01A5B6E9 /* FrameLink.app */,
+				EEEEEEEEEEEEEEEEEEEEEE06 /* FrameLinkUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -85,6 +115,27 @@
 			productReference = 38A007151ABE87CC01A5B6E9 /* FrameLink.app */;
 			productType = "com.apple.product-type.application";
 		};
+		EEEEEEEEEEEEEEEEEEEEEE01 /* FrameLinkUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EEEEEEEEEEEEEEEEEEEEEE02 /* Build configuration list for PBXNativeTarget "FrameLinkUITests" */;
+			buildPhases = (
+				EEEEEEEEEEEEEEEEEEEEEE07 /* Sources */,
+				EEEEEEEEEEEEEEEEEEEEEE08 /* Frameworks */,
+				EEEEEEEEEEEEEEEEEEEEEE09 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				EEEEEEEEEEEEEEEEEEEEEE0B /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				EEEEEEEEEEEEEEEEEEEEEE05 /* FrameLinkUITests */,
+			);
+			name = FrameLinkUITests;
+			productName = FrameLinkUITests;
+			productReference = EEEEEEEEEEEEEEEEEEEEEE06 /* FrameLinkUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -97,6 +148,10 @@
 				TargetAttributes = {
 					0E8A3AD980EC179856012B7E = {
 						CreatedOnToolsVersion = 16.0;
+					};
+					EEEEEEEEEEEEEEEEEEEEEE01 = {
+						CreatedOnToolsVersion = 27.2;
+						TestTargetID = 0E8A3AD980EC179856012B7E;
 					};
 				};
 			};
@@ -114,12 +169,20 @@
 			projectRoot = "";
 			targets = (
 				0E8A3AD980EC179856012B7E /* FrameLink */,
+				EEEEEEEEEEEEEEEEEEEEEE01 /* FrameLinkUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		0189424A5A60FED329FA868E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EEEEEEEEEEEEEEEEEEEEEE09 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -136,9 +199,50 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EEEEEEEEEEEEEEEEEEEEEE07 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		EEEEEEEEEEEEEEEEEEEEEE0B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0E8A3AD980EC179856012B7E /* FrameLink */;
+			targetProxy = EEEEEEEEEEEEEEEEEEEEEE0A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		EEEEEEEEEEEEEEEEEEEEEE03 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lczerniawski.framelink.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = FrameLink;
+			};
+			name = Debug;
+		};
+		EEEEEEEEEEEEEEEEEEEEEE04 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lczerniawski.framelink.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = FrameLink;
+			};
+			name = Release;
+		};
 		639A7CA24D39909E713B47F7 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -283,6 +387,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		EEEEEEEEEEEEEEEEEEEEEE02 /* Build configuration list for PBXNativeTarget "FrameLinkUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EEEEEEEEEEEEEEEEEEEEEE03 /* Debug */,
+				EEEEEEEEEEEEEEEEEEEEEE04 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		862894B703A6DEDF96A9DD6C /* Build configuration list for PBXProject "FrameLink" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

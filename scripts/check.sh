@@ -128,7 +128,15 @@ assert len(exceptions) == 1 and exceptions[0]['membershipExceptions'] == ['Info.
 assert all(obj.get('lastKnownFileType') != 'sourcecode.swift' for obj in objects.values()), 'Discover Swift files through the native folder, not a flat reference list'
 for ref in objects[target['buildConfigurationList']]['buildConfigurations']:
     assert objects[ref]['buildSettings']['INFOPLIST_FILE'] == 'FrameLink/Info.plist'
-print('Frame Link native Xcode folder and target-membership checks passed')
+ui_id, ui_target = next((key, obj) for key, obj in objects.items() if obj['isa'] == 'PBXNativeTarget' and obj['name'] == 'FrameLinkUITests')
+assert ui_target['productType'] == 'com.apple.product-type.bundle.ui-testing'
+assert [objects[ref]['path'] for ref in ui_target['fileSystemSynchronizedGroups']] == ['Tests/UI']
+assert not set(group_ids) & set(ui_target['fileSystemSynchronizedGroups']), 'Keep UI test sources out of the app target'
+assert any(objects[ref]['target'] == target_id for ref in ui_target['dependencies'])
+scheme = ET.parse('FrameLink.xcodeproj/xcshareddata/xcschemes/FrameLink.xcscheme')
+assert any(ref.get('BlueprintIdentifier') == ui_id for ref in scheme.findall('.//TestableReference/BuildableReference'))
+assert pathlib.Path('Tests/UI/FrameLinkUITests.swift').is_file()
+print('Frame Link native Xcode folders and UI test target checks passed')
 assert re.findall(r'IPHONEOS_DEPLOYMENT_TARGET = ([\d.]+);', project) == ['26.0', '26.0']
 assert 'Assets.xcassets' not in project and not pathlib.Path('FrameLink/Assets.xcassets').exists()
 print('Frame Link layered icon and iOS 26 configuration checks passed')
