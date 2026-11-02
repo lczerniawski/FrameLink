@@ -1,0 +1,83 @@
+{
+  "color-space-for-untagged-svg-colors": "display-p3",
+  "fill-specializations": [
+    {
+      "value": "system-light"
+    },
+    {
+      "appearance": "dark",
+      "value": "system-dark"
+    }
+  ],
+  "groups": [
+    {
+      "name": "Camera frame",
+      "layers": [
+        {
+          "name": "Adaptive camera outline",
+          "image-name": "CameraFrame.svg",
+          "glass": true,
+          "fill-specializations": [
+            {
+              "value": {
+                "solid": "display-p3:0.10000,0.10000,0.10000,1.00000"
+              }
+            },
+            {
+              "appearance": "dark",
+              "value": {
+                "solid": "display-p3:1.00000,1.00000,1.00000,1.00000"
+              }
+            },
+            {
+              "appearance": "tinted",
+              "value": {
+                "solid": "display-p3:1.00000,1.00000,1.00000,1.00000"
+              }
+            }
+          ]
+        }
+      ],
+      "lighting": "individual",
+      "specular": true,
+      "blur-material": 0.1,
+      "translucency": {
+        "enabled": true,
+        "value": 0.2
+      },
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.3
+      }
+    },
+    {
+      "name": "Yellow optics",
+      "layers": [
+        {
+          "name": "Yellow lens ring",
+          "image-name": "LensRing.svg",
+          "glass": true
+        },
+        {
+          "name": "Yellow indicator",
+          "image-name": "Indicator.svg",
+          "glass": true
+        }
+      ],
+      "lighting": "individual",
+      "specular": true,
+      "blur-material": 0.1,
+      "translucency": {
+        "enabled": true,
+        "value": 0.15
+      },
+      "shadow": {
+        "kind": "layer-color",
+        "opacity": 0.3
+      }
+    }
+  ],
+  "supported-platforms": {
+    "squares": "shared"
+  }
+}
