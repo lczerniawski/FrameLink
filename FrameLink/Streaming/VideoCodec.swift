@@ -56,7 +56,7 @@ final class VideoEncoder {
             guard let jpeg = context.jpegRepresentation(of: scaled, colorSpace: colorSpace,
                                                         options: [kCGImageDestinationLossyCompressionQuality as CIImageRepresentationOption: quality]),
                   jpeg.count <= Packet.maximumPayload else {
-                fail("Could not encode the preview frame. Disconnect and try again.", token: token)
+                fail("Couldn’t prepare the camera preview. Reconnect from Nearby devices and try again.", token: token)
                 return
             }
             lock.lock()
@@ -68,7 +68,7 @@ final class VideoEncoder {
                 try destination.0.send(Packet(kind: .jpeg, sequence: sequence, payload: jpeg).encoded(),
                                        toPeers: [destination.1], with: .reliable)
             } catch {
-                fail("Preview send failed: \(error.localizedDescription)", token: token)
+                fail("Couldn’t send the camera preview: \(error.localizedDescription)", token: token)
             }
         }
     }

@@ -50,13 +50,13 @@ final class PeerConnectionManager: NSObject, ObservableObject {
         session.delegate = self
         self.session = session
         if role == .camera {
-            status = "Searching for previews"
+            status = "Looking for iPhones"
             let browser = MCNearbyServiceBrowser(peer: localPeer, serviceType: Self.serviceType)
             browser.delegate = self
             self.browser = browser
             browser.startBrowsingForPeers()
         } else {
-            status = "Available for a camera"
+            status = "Ready to connect"
             let advertiser = MCNearbyServiceAdvertiser(peer: localPeer,
                 discoveryInfo: ["role": "preview", "version": "1"], serviceType: Self.serviceType)
             advertiser.delegate = self
@@ -105,7 +105,7 @@ final class PeerConnectionManager: NSObject, ObservableObject {
         guard role == .camera, let session, partner == nil else { return }
         partner = peer
         isConnecting = true
-        status = "Requesting \(peer.displayName)…"
+        status = "Waiting for \(peer.displayName)…"
         browser?.invitePeer(peer, to: session, withContext: Data("FrameLink/1/camera".utf8), timeout: 30)
         armConnectionTimeout(session)
     }
@@ -124,7 +124,7 @@ final class PeerConnectionManager: NSObject, ObservableObject {
         } else {
             handler?(false, nil)
             partner = nil
-            status = "Available for a camera"
+            status = "Ready to connect"
         }
     }
 
@@ -133,7 +133,7 @@ final class PeerConnectionManager: NSObject, ObservableObject {
         connectionTimeout = Task { [weak self] in
             try? await Task.sleep(for: .seconds(32))
             guard !Task.isCancelled, let self, self.session === expected, self.connectedName == nil else { return }
-            self.fail("The request was declined or timed out. Keep both apps open, check Local Network access in Settings, and try again.")
+            self.fail("The connection request was declined or timed out. Keep Frame Link open on both iPhones, check Local Network access in Settings, and try again.")
         }
     }
 
@@ -144,7 +144,7 @@ final class PeerConnectionManager: NSObject, ObservableObject {
 
     private func tick() {
         if encoder.checkForStall() {
-            fail("The preview stopped acknowledging frames. The connection was reset; select the preview to reconnect.")
+            fail("The other iPhone stopped responding. Select it in Nearby devices to reconnect.")
         }
         if isReceiving, Date().timeIntervalSince(lastFrame) > 3 {
             isReceiving = false
@@ -163,7 +163,7 @@ final class PeerConnectionManager: NSObject, ObservableObject {
             encoder.acknowledge(packet.sequence)
         case .notice:
             guard let message = String(data: packet.payload, encoding: .utf8) else {
-                fail("The other device sent an invalid control message.")
+                fail("Frame Link couldn’t read a message from the other iPhone. Try connecting again.")
                 return
             }
             status = "Connected, \(message)"
@@ -171,7 +171,7 @@ final class PeerConnectionManager: NSObject, ObservableObject {
             guard role == .preview else { return }
             decoder.decode(packet.payload) { [weak self, weak incomingSession] image in
                 guard let self, let incomingSession, self.session === incomingSession else { return }
-                guard let image else { self.fail("The incoming preview frame could not be decoded."); return }
+                guard let image else { self.fail("Frame Link couldn’t display the incoming preview. Try connecting again."); return }
                 self.image = image
                 self.lastFrame = Date()
                 self.frameCount += 1
@@ -188,7 +188,7 @@ final class PeerConnectionManager: NSObject, ObservableObject {
                     try incomingSession.send(Packet(kind: .acknowledgement, sequence: packet.sequence).encoded(),
                                              toPeers: [peer], with: .reliable)
                 } catch {
-                    self.fail("Could not acknowledge the frame: \(error.localizedDescription)")
+                    self.fail("The preview connection failed. Try connecting again. \(error.localizedDescription)")
                 }
             }
         }
@@ -214,8 +214,8 @@ extension PeerConnectionManager: MCNearbyServiceBrowserDelegate {
     nonisolated func browser(_ browser: MCNearbyServiceBrowser, didNotStartBrowsingForPeers error: Error) {
         Task { @MainActor in
             guard self.browser === browser else { return }
-            self.status = "Discovery unavailable"
-            self.errorMessage = "Nearby discovery failed: \(error.localizedDescription). Enable Wi-Fi and Bluetooth, and allow Frame Link Local Network access in Settings."
+            self.status = "Can’t find nearby iPhones"
+            self.errorMessage = "Couldn’t search for nearby iPhones. Turn on Wi-Fi and Bluetooth and allow Frame Link Local Network access in Settings. \(error.localizedDescription)"
         }
     }
 }
@@ -244,8 +244,8 @@ extension PeerConnectionManager: MCNearbyServiceAdvertiserDelegate {
     nonisolated func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didNotStartAdvertisingPeer error: Error) {
         Task { @MainActor in
             guard self.advertiser === advertiser else { return }
-            self.status = "Advertising unavailable"
-            self.errorMessage = "Could not advertise Frame Link: \(error.localizedDescription). Check Local Network access in Settings, then retry."
+            self.status = "This iPhone isn’t discoverable"
+            self.errorMessage = "Other iPhones can’t find this iPhone. Check Frame Link’s Local Network access in Settings and try again. \(error.localizedDescription)"
         }
     }
 }
@@ -274,10 +274,10 @@ extension PeerConnectionManager: MCSessionDelegate {
                 let hadConnection = self.connectedName != nil
                 self.restart()
                 self.errorMessage = hadConnection
-                    ? "The connection to \(peerID.displayName) was lost. Keep both apps in the foreground and select the preview again."
-                    : "The connection was declined or could not be established. Check the other iPhone and try again."
+                    ? "Disconnected from \(peerID.displayName). Keep Frame Link open on both iPhones, then reconnect from Nearby devices in Camera Mode."
+                    : "The connection was declined or failed. Check the other iPhone and try again."
             @unknown default:
-                self.fail("Frame Link encountered an unknown connection state. Try connecting again.")
+                self.fail("The connection failed. Try connecting again.")
             }
         }
     }
@@ -286,7 +286,7 @@ extension PeerConnectionManager: MCSessionDelegate {
         guard let packet = Packet(data: data) else {
             Task { @MainActor in
                 guard self.session === session else { return }
-                self.fail("The other device sent an unsupported Frame Link packet. Use the same app version on both iPhones.")
+                self.fail("Frame Link couldn’t read data from the other iPhone. Use the same app version on both iPhones and reconnect.")
             }
             return
         }

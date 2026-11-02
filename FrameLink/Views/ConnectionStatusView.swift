@@ -51,11 +51,11 @@ struct NearbyDevicesView: View {
                     if peers.nearby.isEmpty {
                         HStack(spacing: 12) {
                             ProgressView()
-                            Text("Looking for preview iPhones…").foregroundStyle(.secondary)
+                            Text("Looking for iPhones…").foregroundStyle(.secondary)
                         }
                     }
-                } header: { Text("Nearby previews") } footer: {
-                    Text("Open Preview Mode on the other iPhone. Enable Wi-Fi and Bluetooth in Settings; no Wi-Fi network is needed. If nothing appears, allow Frame Link Local Network access on both phones. iOS may not report a denied permission as an error.")
+                } header: { Text("Available iPhones") } footer: {
+                    Text("Open Preview Mode on the other iPhone. Turn on Wi-Fi and Bluetooth in Settings on both phones; you don’t need to join a Wi-Fi network. If the iPhone doesn’t appear, check Frame Link’s Local Network access on both phones.")
                 }
                 Section {
                     Button("Search again", action: peers.restart)

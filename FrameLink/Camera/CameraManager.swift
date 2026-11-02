@@ -196,7 +196,7 @@ final class CameraManager: NSObject, ObservableObject, @unchecked Sendable {
     private func capturePreparedPhoto(flash: CameraFlash) {
         sessionQueue.async {
             guard self.shouldRun, self.session.isRunning, !self.session.isInterrupted else {
-                self.finishPhoto(error: "The camera is not available. Return to Camera Mode and try again.")
+                self.finishPhoto(error: "The camera is unavailable. Return to Camera Mode and try again.")
                 return
             }
             let mode: AVCaptureDevice.FlashMode
@@ -207,7 +207,7 @@ final class CameraManager: NSObject, ObservableObject, @unchecked Sendable {
             }
             guard self.photoOutput.supportedFlashModes.contains(mode),
                   flash == .off || self.input?.device.isFlashAvailable == true else {
-                self.finishPhoto(error: "The flash is currently unavailable. Turn flash off and try again.")
+                self.finishPhoto(error: "Flash is unavailable. Turn it off and try again.")
                 return
             }
             let settings = AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.jpeg])
@@ -322,8 +322,8 @@ final class CameraManager: NSObject, ObservableObject, @unchecked Sendable {
                 $0.device = device
                 $0.cameraDenied = false
                 $0.isReady = running
-                $0.status = running ? "Ready" : "Camera unavailable, try again"
-                if !running { $0.errorMessage = "The camera could not start. Close other camera apps and retry." }
+                $0.status = running ? "Ready" : "Camera unavailable"
+                if !running { $0.errorMessage = "Couldn’t start the camera. Close other camera apps and tap Retry camera." }
             }
         } catch {
             publish { $0.isReady = false; $0.status = "Camera unavailable"; $0.errorMessage = error.localizedDescription }
@@ -359,7 +359,7 @@ final class CameraManager: NSObject, ObservableObject, @unchecked Sendable {
                 if device.isExposurePointOfInterestSupported { device.exposurePointOfInterest = CGPoint(x: 0.5, y: 0.5) }
                 device.setExposureTargetBias(0)
             }
-        } catch { publish { $0.errorMessage = "Camera controls could not be configured: \(error.localizedDescription)" } }
+        } catch { publish { $0.errorMessage = "Couldn’t set up camera controls: \(error.localizedDescription)" } }
         let displayRange = (range.lowerBound * multiplier)...(range.upperBound * multiplier)
         let factors = device.virtualDeviceSwitchOverVideoZoomFactors.map(\.doubleValue)
             + device.activeFormat.secondaryNativeResolutionZoomFactors.map { Double($0) }
@@ -434,7 +434,7 @@ final class CameraManager: NSObject, ObservableObject, @unchecked Sendable {
     }
 
     @objc private func interrupted() {
-        publish { $0.cancelTimer(); $0.isReady = false; $0.status = "Camera interrupted, close other camera apps or return to the foreground" }
+        publish { $0.cancelTimer(); $0.isReady = false; $0.status = "Camera interrupted. Return to Frame Link or close other camera apps." }
     }
 
     @objc private func interruptionEnded() {
@@ -460,8 +460,8 @@ final class CameraManager: NSObject, ObservableObject, @unchecked Sendable {
         case unavailable, configuration
         var errorDescription: String? {
             switch self {
-            case .unavailable: return "This iPhone's camera is unavailable. Try again on a physical iPhone."
-            case .configuration: return "The camera could not be configured. Close other camera apps and retry."
+            case .unavailable: return "The camera is unavailable. Close other camera apps and tap Retry camera."
+            case .configuration: return "Couldn’t set up the camera. Close other camera apps and try again."
             }
         }
     }
@@ -478,7 +478,7 @@ extension CameraManager: AVCapturePhotoCaptureDelegate {
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         if let error { finishPhoto(error: error.localizedDescription); return }
         guard let data = photo.fileDataRepresentation() else {
-            finishPhoto(error: "The captured photo could not be read. Try taking another photo.")
+            finishPhoto(error: "Couldn’t read the photo. Try taking another one.")
             return
         }
         // Full-resolution photo data stays on this iPhone and never enters the preview encoder.
@@ -489,14 +489,14 @@ extension CameraManager: AVCapturePhotoCaptureDelegate {
             savedIdentifier.withLock { $0 = request.placeholderForCreatedAsset?.localIdentifier }
         } completionHandler: { success, error in
             guard success else {
-                self.finishPhoto(error: error?.localizedDescription ?? "Photos could not save this image. Check storage and permissions.")
+                self.finishPhoto(error: error?.localizedDescription ?? "Couldn’t save the photo. Check free storage and Frame Link’s Photos access in Settings.")
                 return
             }
             let identifier = savedIdentifier.withLock { $0 }
             Task { @MainActor in
                 guard let identifier, !identifier.isEmpty else {
                     self.finishPhoto(error: nil)
-                    self.errorMessage = "Your photo was saved to Photos, but its gallery entry could not be created."
+                    self.errorMessage = "Saved to Photos, but Frame Link couldn’t add the photo to Recent photos."
                     return
                 }
                 self.recentPhotos.add(data, assetIdentifier: identifier) { self.finishPhoto(error: nil) }

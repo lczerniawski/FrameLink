@@ -20,16 +20,16 @@ struct PreviewView: View {
                 ScrollView {
                     VStack(spacing: 20) {
                         Image(systemName: "viewfinder").font(.system(size: 54, weight: .ultraLight))
-                        Text(peers.connectedName == nil ? "Ready for a camera" : "Waiting for video")
+                        Text(peers.connectedName == nil ? "Ready to connect" : "Waiting for video")
                             .font(.title2.weight(.semibold))
-                        Text("On the other iPhone, open Camera Mode, tap nearby devices, and select this iPhone.")
+                        Text("On the other iPhone, open Camera Mode. Tap Nearby devices and choose this iPhone:")
                             .foregroundStyle(.secondary)
                         Text(peers.localPeer.displayName).font(.headline).textSelection(.enabled)
-                        Text("Allow the connection when it appears here. Keep both apps open, with Wi-Fi and Bluetooth enabled.")
+                        Text("Accept the connection request here. Keep Frame Link open on both iPhones, with Wi-Fi and Bluetooth on.")
                             .font(.footnote).foregroundStyle(.secondary)
                         if peers.connectedName == nil {
-                            Button("Retry discovery", action: peers.restart).buttonStyle(.bordered)
-                            Button("Local Network settings", action: openSettings)
+                            Button("Try again", action: peers.restart).buttonStyle(.bordered)
+                            Button("Open Settings", action: openSettings)
                         }
                     }
                     .multilineTextAlignment(.center)
@@ -47,7 +47,7 @@ struct PreviewView: View {
             HStack {
                 Toggle(isOn: $mirrored) { Label("Mirror", systemImage: "arrow.left.and.right.righttriangle.left.righttriangle.right") }
                     .toggleStyle(.button)
-                    .accessibilityHint("Flips only this monitor horizontally")
+                    .accessibilityHint("Flips this preview horizontally without changing saved photos")
                 Spacer()
                 if peers.isReceiving {
                     Text("\(peers.receivedFPS) fps").font(.caption.monospacedDigit()).foregroundStyle(.secondary)
@@ -64,9 +64,9 @@ struct PreviewView: View {
             set: { if !$0, peers.invitation != nil { peers.answerInvitation(false) } }
         ), presenting: peers.invitation) { _ in
             Button("Accept") { peers.answerInvitation(true) }
-            Button("Reject", role: .cancel) { peers.answerInvitation(false) }
+            Button("Decline", role: .cancel) { peers.answerInvitation(false) }
         } message: { invitation in
-            Text("\(invitation.name) wants to send a live preview to Frame Link. Accept only the iPhone you recognize.")
+            Text("\(invitation.name) wants to share its camera preview with this iPhone. Accept only requests from an iPhone you recognize.")
         }
     }
 }

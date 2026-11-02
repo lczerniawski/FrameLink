@@ -21,7 +21,7 @@ struct RecentPhotosView: View {
             Group {
                 if photos.isEmpty {
                     ContentUnavailableView("No recent photos", systemImage: "photo.on.rectangle",
-                        description: Text("Photos you take on this iPhone will appear here."))
+                        description: Text("Photos you take in Camera Mode on this iPhone appear here."))
                 } else {
                     TabView(selection: $selectedID) {
                         ForEach(photos) { photo in
@@ -37,7 +37,7 @@ struct RecentPhotosView: View {
                                         .accessibilityLabel("Photo taken \(photo.capturedAt.formatted(date: .abbreviated, time: .shortened))")
                                     } else if let error = loader.errorMessage {
                                         VStack(spacing: 16) {
-                                            ContentUnavailableView("Preview unavailable", systemImage: "exclamationmark.triangle",
+                                            ContentUnavailableView("Can’t load preview", systemImage: "exclamationmark.triangle",
                                                 description: Text(error))
                                             Button("Try again") { loader.load(photo) }.buttonStyle(.bordered)
                                         }
@@ -68,7 +68,7 @@ struct RecentPhotosView: View {
                             Image(systemName: "trash").frame(width: 44, height: 44)
                         }
                         .accessibilityLabel("Delete photo")
-                        .accessibilityHint("Deletes the original from Photos and removes this gallery preview")
+                        .accessibilityHint("Deletes this photo from Photos and removes it from Recent photos")
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {
@@ -110,12 +110,12 @@ struct RecentPhotosView: View {
             Button("Delete Photo", role: .destructive) { remove(photo) }
             Button("Cancel", role: .cancel) {}
         } message: { _ in
-            Text("This deletes the original from Photos and removes its preview from Frame Link. If iCloud Photos is enabled, deletion also syncs to your other devices. iOS may ask you to confirm.")
+            Text("This deletes the photo from Photos and Frame Link. If iCloud Photos is on, it also deletes the photo from your other devices. iOS may ask you to confirm.")
         }
-        .alert("Gallery error", isPresented: Binding(
+        .alert("Couldn’t update recent photos", isPresented: Binding(
             get: { galleryError != nil }, set: { if !$0 { galleryError = nil } }
         )) {
-            Button("Reload gallery") { store.reload() }
+            Button("Reload photos") { store.reload() }
             Button("Open Settings", action: openSettings)
             Button("OK", role: .cancel) {}
         } message: { Text(galleryError ?? "") }

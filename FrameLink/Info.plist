@@ -16,9 +16,9 @@
     <key>NSPhotoLibraryAddUsageDescription</key>
     <string>Frame Link saves the photos you take to this iPhone’s Photos library.</string>
     <key>NSPhotoLibraryUsageDescription</key>
-    <string>Frame Link needs Photos access to find and delete the original photos you choose to delete from its gallery.</string>
+    <string>Frame Link uses Photos access to find and delete the original when you delete a photo from Recent photos.</string>
     <key>NSMotionUsageDescription</key>
-    <string>Frame Link uses motion data to show the camera level while you compose a photo.</string>
+    <string>Frame Link uses motion data to show when your camera is level.</string>
     <key>NSLocalNetworkUsageDescription</key>
     <string>Frame Link discovers and connects to nearby iPhones to share a live camera preview without internet.</string>
     <key>NSBonjourServices</key><array><string>_framelink._tcp</string></array>

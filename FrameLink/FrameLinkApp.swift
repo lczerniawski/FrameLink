@@ -64,16 +64,16 @@ private struct RootView: View {
     private var home: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 28) {
-                Text("One camera.\nA second point of view.")
+                Text("Preview your camera\non another iPhone.")
                     .font(.largeTitle.weight(.semibold))
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.top, 24)
-                Text("Keep both iPhones nearby and Frame Link open. Choose a different mode on each phone.")
+                Text("Keep both iPhones nearby with Frame Link open. Use Camera Mode on one and Preview Mode on the other.")
                     .foregroundStyle(.secondary)
                 VStack(spacing: 0) {
                     modeButton("Camera Mode", subtitle: "Take photos on this iPhone", icon: "camera", role: .camera)
                     Divider().padding(.leading, 64)
-                    modeButton("Preview Mode", subtitle: "Monitor the other iPhone’s camera", icon: "viewfinder", role: .preview)
+                    modeButton("Preview Mode", subtitle: "See the other iPhone’s camera", icon: "viewfinder", role: .preview)
                 }
                 .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
                 Label("No internet, router, or account needed", systemImage: "point.3.connected.trianglepath.dotted")

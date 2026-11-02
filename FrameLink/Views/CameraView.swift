@@ -48,7 +48,7 @@ struct CameraView: View {
                 }
                 .disabled(!camera.isReady || camera.isCapturing)
                 .accessibilityLabel("Camera settings")
-                .accessibilityHint("Exposure, grid, and level")
+                .accessibilityHint("Adjust exposure or show the grid and level")
             }
             ToolbarItem(placement: .topBarTrailing) { devicesButton }
         }
@@ -179,14 +179,14 @@ struct CameraView: View {
         }
         .disabled(recentPhotos.isLoading || camera.isCapturing)
         .accessibilityLabel("Recent photos")
-        .accessibilityHint(recentPhotos.photos.isEmpty ? "No photos taken on this iPhone yet" : "Opens the last \(recentPhotos.photos.count) photos taken on this iPhone")
+        .accessibilityHint(recentPhotos.photos.isEmpty ? "No recent photos on this iPhone" : "Opens recent photos taken on this iPhone")
     }
 
     private var devicesButton: some View {
         Button { showDevices = true } label: {
             Image(systemName: "iphone.radiowaves.left.and.right").font(.system(size: 22)).frame(width: 48, height: 48)
         }
-        .accessibilityLabel("Nearby preview devices")
+        .accessibilityLabel("Nearby devices")
     }
 
     private var switchButton: some View {
@@ -213,7 +213,7 @@ struct CameraView: View {
         }
         .disabled(!camera.isReady || (camera.isCapturing && camera.countdown == nil))
         .accessibilityLabel(camera.countdown != nil ? "Cancel timer" : (camera.isCapturing ? "Saving photo" : "Take photo"))
-        .accessibilityHint("Saves a full-resolution photo on this iPhone only")
+        .accessibilityHint("Saves a full-resolution photo to Photos on this iPhone only")
     }
 }
 
@@ -236,13 +236,13 @@ private struct CameraSettingsView: View {
                         Button("Reset exposure") { camera.setExposure(0) }
                     }
                 } header: { Text("Exposure") } footer: {
-                    Text(camera.supportsMetering ? "Tap the scene to focus and meter exposure. Pinch to zoom, or use the zoom buttons at the bottom-left of the preview. Flash and timer are above the preview." : "Tap-to-focus and metering are unavailable on this camera. Pinch to zoom, or use the bottom-left zoom buttons. Flash and timer are above the preview.")
+                    Text(camera.supportsMetering ? "Tap the preview to set focus and exposure. Pinch to zoom or use the buttons at the bottom left. Flash and timer are above the preview." : "This camera doesn’t support setting focus or exposure by tapping. Pinch to zoom or use the buttons at the bottom left. Flash and timer are above the preview.")
                 }
                 Section("Composition") {
                     Toggle("Grid", isOn: $showGrid)
                     Toggle("Level", isOn: $showLevel)
-                    if !levelAvailable { Text("Motion data is unavailable, so the level guide is hidden.").foregroundStyle(.secondary) }
-                    Text("The thin horizon guide turns yellow when level and hides when the phone is nearly flat. Overlays are not included in saved photos or the remote preview.")
+                    if !levelAvailable { Text("The level is hidden because motion data isn’t available.").foregroundStyle(.secondary) }
+                    Text("The level guide turns yellow when the camera is level and hides when the iPhone is nearly flat. The grid and level appear only here, not in saved photos or on the other iPhone.")
                         .font(.footnote).foregroundStyle(.secondary)
                 }
             }
@@ -291,7 +291,7 @@ private struct CameraPreview: UIViewRepresentable {
             focusBox.actions = ["position": NSNull(), "opacity": NSNull()]
             layer.addSublayer(focusBox)
             isAccessibilityElement = true
-            accessibilityLabel = "Local camera preview"
+            accessibilityLabel = "This iPhone’s camera preview"
             accessibilityHint = "Double-tap to focus at the center. Swipe up or down to adjust zoom."
             accessibilityTraits = .button
         }
@@ -367,7 +367,7 @@ private struct CameraPreview: UIViewRepresentable {
             accessibilityValue = "Zoom \(camera.zoomFactor.formatted(.number.precision(.fractionLength(1)))) times"
             accessibilityHint = (camera.supportsMetering ? "Double-tap to focus at the center. " : "")
                 + (canZoom ? "Swipe up or down to adjust zoom. " : "")
-                + "Exposure is available in Camera settings."
+                + "Adjust exposure in Camera settings."
             guard sessionConnected, let device = camera.device, deviceID != device.uniqueID else { return }
             deviceID = device.uniqueID
             focusBox.removeAllAnimations()
