@@ -3,6 +3,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
+python3 -B Tests/SourceChecks.py
 xcrun swiftc FrameLink/Streaming/Packet.swift Tests/ProtocolChecks.swift -o "$work/checks"
 "$work/checks"
 xcrun swiftc FrameLink/Camera/RecentPhotoStore.swift Tests/RecentPhotoChecks.swift -o "$work/photo-checks"

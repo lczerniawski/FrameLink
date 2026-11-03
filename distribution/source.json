@@ -1,0 +1,16 @@
+{
+  "name": "Frame Link",
+  "website": "https://github.com/lczerniawski/FrameLink",
+  "apps": [
+    {
+      "name": "Frame Link",
+      "bundleIdentifier": "com.lczerniawski.framelink",
+      "developerName": "lczerniawski",
+      "subtitle": "A second iPhone as your live viewfinder.",
+      "localizedDescription": "Use a nearby iPhone to check the composition while taking photos on the camera phone. Full-resolution photos stay in Photos on the camera phone; captured photos are not transferred to the viewing phone.\n\nBoth iPhones need iOS 26 or later, Wi-Fi and Bluetooth enabled, and Frame Link open in the foreground. Frame Link itself needs no account or internet connection.\n\nThe Recent photos screen keeps cached previews. Deleting a photo there also deletes its linked original from Photos, which can sync through iCloud Photos.",
+      "iconURL": "https://lczerniawski.github.io/FrameLink/icon.png",
+      "category": "photo-video"
+    }
+  ],
+  "news": []
+}

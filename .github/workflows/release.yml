@@ -1,0 +1,138 @@
+name: Release Frame Link
+
+'on':
+  push:
+    tags: ['v[0-9]*']
+
+concurrency:
+  group: framelink-release
+  cancel-in-progress: false
+
+permissions: {}
+
+env:
+  RELEASE_TAG: ${{ github.ref_name }}
+
+jobs:
+  build:
+    runs-on: macos-26
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check source and show toolchain
+        run: |
+          xcodebuild -version
+          ./scripts/check.sh
+      - name: Build unsigned Release app
+        run: |
+          xcodebuild -project FrameLink.xcodeproj -scheme FrameLink \
+            -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
+            -derivedDataPath build/Release CODE_SIGNING_ALLOWED=NO build
+      - name: Package IPA and export its icon
+        run: |
+          mkdir -p build/package/Payload build/release/site
+          ditto build/Release/Build/Products/Release-iphoneos/FrameLink.app build/package/Payload/FrameLink.app
+          (cd build/package && ditto -c -k --norsrc --noextattr --keepParent Payload ../release/FrameLink.ipa)
+          sips -s format png 'build/package/Payload/FrameLink.app/FrameLinkIcon60x60@2x.png' \
+            --out build/release/site/icon.png
+      - name: Retrieve published version history
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          status=$(curl --location --silent --show-error --retry 3 \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --output build/latest-release.json --write-out '%{http_code}' \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/latest")
+          case "$status" in
+            200)
+              mkdir -p build/previous
+              gh release download --repo "$GITHUB_REPOSITORY" --pattern source.json --dir build/previous
+              mv build/previous/source.json build/previous-source.json
+              ;;
+            404) printf 'null\n' > build/previous-source.json ;;
+            *) printf 'Cannot read previous release: HTTP %s\n' "$status" >&2; exit 1 ;;
+          esac
+      - name: Generate feed from the packaged IPA
+        run: |
+          python3 scripts/make-source.py build/release/FrameLink.ipa "$RELEASE_TAG" \
+            build/release/site/source.json --previous-source build/previous-source.json
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: release
+          path: build/release/
+          if-no-files-found: error
+          retention-days: 14
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: release
+          path: release
+      - uses: actions/upload-pages-artifact@v5.0.0
+        with:
+          path: release/site
+          retention-days: 14
+      - name: Publish release without overwriting assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --verify-tag \
+            --title "Frame Link ${RELEASE_TAG#v}" --generate-notes --draft \
+            release/FrameLink.ipa release/site/source.json release/site/icon.png
+          gh release edit "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --draft=false --latest
+
+  deploy:
+    needs: publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v6.0.0
+      - name: Deploy feed and icon
+        id: deployment
+        uses: actions/deploy-pages@v5.0.1
+      - name: Verify unauthenticated public downloads
+        run: |
+          curl --fail --location --silent --show-error --retry 8 --retry-delay 5 --retry-all-errors \
+            https://lczerniawski.github.io/FrameLink/source.json -o source.json
+          curl --fail --location --silent --show-error --retry 8 --retry-delay 5 --retry-all-errors \
+            https://lczerniawski.github.io/FrameLink/icon.png -o icon.png
+          curl --fail --location --silent --show-error --retry 8 --retry-delay 5 --retry-all-errors \
+            "https://github.com/$GITHUB_REPOSITORY/releases/download/$RELEASE_TAG/FrameLink.ipa" -o FrameLink.ipa
+          python3 - <<'PY'
+          import json, os, plistlib
+          from pathlib import Path
+          from zipfile import ZipFile
+          app = json.loads(Path('source.json').read_text())['apps'][0]
+          version = app['versions'][0]
+          assert app['iconURL'] == 'https://lczerniawski.github.io/FrameLink/icon.png'
+          assert version['downloadURL'] == f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/releases/download/{os.environ['RELEASE_TAG']}/FrameLink.ipa"
+          assert version['size'] == Path('FrameLink.ipa').stat().st_size
+          assert Path('icon.png').read_bytes().startswith(b'\x89PNG\r\n\x1a\n')
+          with ZipFile('FrameLink.ipa') as archive:
+              assert archive.testzip() is None
+              info = plistlib.loads(archive.read('Payload/FrameLink.app/Info.plist'))
+          assert app['bundleIdentifier'] == info['CFBundleIdentifier'] == 'com.lczerniawski.framelink'
+          assert version['version'] == info['CFBundleShortVersionString']
+          assert version['buildVersion'] == info['CFBundleVersion']
+          assert version['minOSVersion'] == info['MinimumOSVersion']
+          assert app['appPermissions']['privacy'] == {k: v for k, v in info.items() if k.startswith('NS') and k.endswith('UsageDescription')}
+          print('Public feed, icon, and exact IPA metadata passed. Device installation and refresh still need testing.')
+          PY

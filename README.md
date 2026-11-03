@@ -42,6 +42,10 @@ xcodebuild -project FrameLink.xcodeproj -scheme FrameLink \
 
 Use `-configuration Release` for an optimized build. For a signed archive, configure your team and bundle identifier, then use **Product → Archive** in Xcode. App Store distribution and third-party sideloading have not been validated.
 
+### AltStore-compatible source
+
+The [release workflow](.github/workflows/release.yml) builds an unsigned IPA, publishes a GitHub Release, and deploys an IPA-derived feed to GitHub Pages when pushed a version tag. See [DISTRIBUTION.md](DISTRIBUTION.md) for the setup. The listing template is [`distribution/source.json`](distribution/source.json).
+
 ## Connect the phones
 
 1. Turn on Wi-Fi and Bluetooth in Settings on both phones. They do not need to join a Wi-Fi network.
@@ -93,7 +97,7 @@ Hardware-independent checks run on macOS with Xcode installed:
 ./scripts/check.sh
 ```
 
-These cover packet validation, frame pacing, photo-preview storage and deletion ordering, camera-control math, navigation lifecycle, and project configuration. Photo deletion tests use a fake Photos operation; they do not delete real library assets.
+These cover release-feed metadata and history, packet validation, frame pacing, photo-preview storage and deletion ordering, camera-control math, navigation lifecycle, and project configuration. Photo deletion tests use a fake Photos operation; they do not delete real library assets.
 
 For Simulator UI tests, choose an installed iPhone simulator and replace `SIMULATOR_UDID` with its identifier:
 
